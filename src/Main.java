@@ -1,25 +1,44 @@
+import Managers.TaskManager;
+import Model.Epic;
+import Model.Status;
+import Model.SubTask;
+import Model.Task;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = new TaskManager();
-        Task task1 = new Task("Покушать", "Приготовить покушать и поесть", 0, Status.NEW);
-        Task task2 = new Task("Помыться", "Принять душ", 0, Status.NEW);
+        Task task1 = new Task("Покушать", "Приготовить покушать и поесть");
+        Task task2 = new Task("Помыться", "Принять душ");
         taskManager.createTask(task1);
         taskManager.createTask(task2);
 
-        Epic epic1 = new Epic("Сделать ТЗ по проге", "реализовать трекер задач", 0);
+        Epic epic1 = new Epic("Сделать ТЗ по проге", "реализовать трекер задач");
         taskManager.createEpic(epic1);
 
-        SubTask subtask1 = new SubTask("Изучить теорию", "пройти теоритическую часть на практикуме", 0, Status.NEW, epic1.getId());
+        SubTask subtask1 = new SubTask("Изучить теорию", "пройти теоритическую часть на практикуме");
         taskManager.createSubtask(subtask1);
 
-        SubTask subtask2 = new SubTask("Написать программу", "Опираясь на теорию написать код ТЗ", 0, Status.IN_PROGRESS, epic1.getId());
+        SubTask subtask2 = new SubTask("Написать программу", "Опираясь на теорию написать код ТЗ");
         taskManager.createSubtask(subtask2);
 
-        Epic epic2 = new Epic("Выложить на гит ТЗ", "для проверки ТЗ необходимо выложить его на свой гит", 0);
+        Epic epic2 = new Epic("Выложить на гит ТЗ", "для проверки ТЗ необходимо выложить его на свой гит");
         taskManager.createEpic(epic2);
 
-        SubTask subtask3 = new SubTask("Закоммитить и запушить", "делаем коммит и пушим наш проект на удаленный репозиторий", 0, Status.DONE, epic2.getId());
+        SubTask subtask3 = new SubTask("Закоммитить и запушить", "делаем коммит и пушим наш проект на удаленный репозиторий");
         taskManager.createSubtask(subtask3);
+
+        //суб таски меняются везде тк меняется сам объект субтаски и ссылка в памяти на этот объект и в хэшмапе и в листе в эпике одна поэтому и там и там субтаска поменяется
+        //на этом куске кода видно что субтаска меняется везде при ее изменении
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println(subtask2);
+        subtask2.setStatus(Status.DONE);
+        System.out.println(epic1.getSubtasks());
+        System.out.println(taskManager.getAllSubtasks());
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println(" ");
 
         System.out.println("Все задачи:");
         taskManager.getAllTasks().forEach(System.out::println);
