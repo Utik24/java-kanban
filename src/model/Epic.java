@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
-    //суб таски меняются везде тк меняется сам объект субтаски и ссылка в памяти на этот объект и в хэшмапе и в листе в эпике одна поэтому и там и там субтаска поменяется
-    // единственное исключение вызывает метод ремув и из-за того что фактически мы удаляем не объект из памяти а из хэшмапы в таскмэнеджере
     private List<SubTask> subtasks;
 
 
@@ -13,6 +11,7 @@ public class Epic extends Task {
         super(title, description);
         this.subtasks = new ArrayList<>();
     }
+
     public Epic(String title, String description, List<SubTask> subtasks) {
         super(title, description);
         this.subtasks = subtasks;
@@ -23,6 +22,9 @@ public class Epic extends Task {
     }
 
     public void addSubtask(SubTask subtask) {
+        if (subtask.getEpicId() == this.id) {
+            throw new IllegalArgumentException("Subtask can't be Epic");
+        }
         subtasks.add(subtask);
         updateStatus();
     }
