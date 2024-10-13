@@ -7,7 +7,7 @@ import model.Task;
 import java.util.List;
 
 public interface TaskManager {
-    int generateId();
+
 
     void removeAllTasks();
 

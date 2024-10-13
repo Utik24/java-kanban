@@ -25,8 +25,8 @@ public class InMemoryTaskManager implements TaskManager {
         this.currentId = 1;
     }
 
-    @Override
-    public int generateId() {
+
+    private int generateId() {
         return currentId++;
     }
 

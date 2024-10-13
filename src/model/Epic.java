@@ -22,7 +22,7 @@ public class Epic extends Task {
     }
 
     public void addSubtask(SubTask subtask) {
-        if (subtask.getEpicId() == this.id) {
+        if (subtask.getId() == this.id) {
             throw new IllegalArgumentException("Subtask can't be Epic");
         }
         subtasks.add(subtask);
