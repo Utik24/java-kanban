@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ManagersTest {
     private InMemoryTaskManager taskManager;
+
     @BeforeEach
     void setUp() {
         taskManager = (InMemoryTaskManager) Managers.getDefault();
     }
+
     @Test
     void testManagersReturnInitializedInstances() {
         assertNotNull(Managers.getDefault());

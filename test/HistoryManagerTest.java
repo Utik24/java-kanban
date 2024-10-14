@@ -1,8 +1,6 @@
 import interfaces.HistoryManager;
-import managers.InMemoryTaskManager;
 import managers.Managers;
 import model.Task;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -11,32 +9,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HistoryManagerTest {
-    private InMemoryTaskManager taskManager;
-    @BeforeEach
-    void setUp() {
-        taskManager = (InMemoryTaskManager) Managers.getDefault();
-    }
+    private HistoryManager historyManager = Managers.getDefaultHistory();
+
     @Test
     void testHistoryManagerRetainsPreviousVersions() {
         Task task1 = new Task("Task 1", "Description 1");
-        taskManager.createTask(task1);
-        taskManager.getTaskById(task1.getId());
+
 
         Task task2 = new Task("Task 2", "Description 2");
-        taskManager.createTask(task2);
-        taskManager.getTaskById(task2.getId());
+        historyManager.add(task1);
+        historyManager.add(task2);
 
 
-        List<Task> history = taskManager.getHistory();
+        List<Task> history = historyManager.getHistory();
 
 
         assertTrue(history.contains(task1));
         assertTrue(history.contains(task2));
         assertEquals(2, history.size());
     }
+
     @Test
     void testHistoryContainsMaxTenTasks() {
-        HistoryManager historyManager = Managers.getDefaultHistory();
 
 
         for (int i = 1; i <= 11; i++) {
