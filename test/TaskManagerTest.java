@@ -26,6 +26,7 @@ class TaskManagerTest {
         task2 = new Task("Task 2", "Description 2");
         epic1 = new Epic("Epic 1", "Description 1");
         epic2 = new Epic("Epic 2", "Description 2");
+        epic1.setId(100);
         subtask = new SubTask("Subtask 1", "Subtask Description", epic1.getId());
         subtask2 = new SubTask("Subtask 2", "Description 2", epic1.getId());
     }
@@ -40,10 +41,8 @@ class TaskManagerTest {
     void testIdConflictInTaskManager() {
         task1.setId(1);
         taskManager.createTask(task1);
-
         task2.setId(1);
         taskManager.createTask(task2);
-
         assertEquals(task1, taskManager.getTaskById(1));
         assertNotEquals(task2, taskManager.getTaskById(1));
     }
@@ -171,4 +170,30 @@ class TaskManagerTest {
         assertTrue(history.contains(task2), "History should contain Task 2");
     }
 
+    @Test
+    void testEpicSubtaskListAfterSubtaskRemoval() {
+        taskManager.createEpic(epic1);
+        taskManager.createSubtask(subtask);
+        taskManager.createSubtask(subtask2);
+        epic1.addSubtask(subtask);
+        epic1.addSubtask(subtask2);
+        System.out.println(subtask.getId());
+        System.out.println(subtask2.getId());
+        assertEquals(2, epic1.getSubtasks().size(), "Epic should initially contain 2 subtasks");
+        taskManager.removeSubTaskById(subtask.getId());
+        System.out.println(epic1.getSubtasks());
+        boolean containsRemoved = epic1.getSubtasks().stream().anyMatch(s -> s.getId() == subtask.getId());
+        assertFalse(containsRemoved, "Epic should not contain the removed subtask");
+    }
+
+    @Test
+    void testSettersDoNotBreakTaskIntegrity() {
+        taskManager.createTask(task1);
+        task1.setTitle("Changed Title");
+        task1.setDescription("Changed Description");
+        taskManager.updateTask(task1);
+        Task retrieved = taskManager.getTaskById(task1.getId());
+        assertEquals("Changed Title", retrieved.getTitle(), "Title should be updated");
+        assertEquals("Changed Description", retrieved.getDescription(), "Description should be updated");
+    }
 }
