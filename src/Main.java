@@ -33,9 +33,6 @@ public class Main {
 
         SubTask subtask3 = new SubTask("Закоммитить и запушить", "делаем коммит и пушим наш проект на удаленный репозиторий");
         inMemoryTaskManager.createSubtask(subtask3);
-        epic1.addSubtask(subtask1);
-        epic1.addSubtask(subtask2);
-        epic1.addSubtask(subtask3);
         System.out.println(inMemoryTaskManager.getAllEpics());
         System.out.println(inMemoryTaskManager.getAllEpics().get(0).getSubtasks());
         inMemoryTaskManager.removeAllSubTasks();
