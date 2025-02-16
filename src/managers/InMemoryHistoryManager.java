@@ -19,7 +19,6 @@ public class InMemoryHistoryManager implements HistoryManager {
     private final Map<Integer, Node> historyMap = new HashMap<>();
     private Node head;
     private Node tail;
-    private final int maxHistorySize = 10;
 
     @Override
     public void add(Task task) {
@@ -38,10 +37,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         historyMap.put(task.getId(), newNode);
 
 
-        if (historyMap.size() > maxHistorySize) {
-            int idToRemove = head.task.getId();
-            remove(idToRemove);
-        }
     }
 
     @Override
@@ -58,31 +53,27 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (node.prev != null) {
             node.prev.next = node.next;
         } else {
-            // Если удаляемый узел является головой
             head = node.next;
         }
 
         if (node.next != null) {
             node.next.prev = node.prev;
         } else {
-            // Если удаляемый узел является хвостом
             tail = node.prev;
         }
 
-        node.prev = null;
-        node.next = null;
+
     }
 
 
     private void linkLast(Node newNode) {
         if (tail == null) {
             head = newNode;
-            tail = newNode;
         } else {
             tail.next = newNode;
             newNode.prev = tail;
-            tail = newNode;
         }
+        tail = newNode;
     }
 
 
@@ -95,5 +86,11 @@ public class InMemoryHistoryManager implements HistoryManager {
             current = current.next;
         }
         return tasks;
+    }
+
+    public void clearHistory() {
+        historyMap.clear();
+        head = null;
+        tail = null;
     }
 }
