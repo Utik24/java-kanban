@@ -153,12 +153,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void removeTaskById(int id) {
-        tasks.remove(id);
-        historyManager.remove(id);
-    }
-
-    @Override
     public void removeSubTaskById(int id) {
         if (subtasks.containsKey(id)) {
             SubTask subtask = subtasks.remove(id);
@@ -170,6 +164,12 @@ public class InMemoryTaskManager implements TaskManager {
             }
 
         }
+    }
+
+    @Override
+    public void removeTaskById(int id) {
+        tasks.remove(id);
+        historyManager.remove(id);
     }
 
 
