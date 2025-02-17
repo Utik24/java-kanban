@@ -42,8 +42,7 @@ public class Main {
         System.out.println(inMemoryTaskManager.getAllEpics());
         System.out.println(inMemoryTaskManager.getAllEpics().get(0).getSubtasks());
 
-        //суб таски меняются везде тк меняется сам объект субтаски и ссылка в памяти на этот объект и в хэшмапе и в листе в эпике одна поэтому и там и там субтаска поменяется
-        //на этом куске кода видно что субтаска меняется везде при ее изменении
+
         System.out.println(" ");
         System.out.println(" ");
         System.out.println(" ");
