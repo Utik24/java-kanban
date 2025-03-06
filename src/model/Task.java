@@ -7,12 +7,26 @@ public class Task {
     protected String description;
     protected int id;
     protected Status status;
+    protected TaskType taskType;
     //поля protected тк они необходимы для наследования private поля не наследуются
 
     public Task(String title, String description) {
         this.title = title;
         this.description = description;
+        this.taskType=TaskType.TASK;
         this.status = Status.NEW;
+    }
+
+    public Task(int id, TaskType taskType, String title, Status status, String description) {
+        this.id = id;
+        this.title = title;
+        this.taskType = taskType;
+        this.description = description;
+        this.status = status;
+    }
+
+    public TaskType getTaskType() {
+        return taskType;
     }
 
     public void setId(int id) {
