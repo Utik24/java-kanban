@@ -9,7 +9,7 @@ public class Epic extends Task {
 
     public Epic(String title, String description) {
         super(title, description);
-        this.taskType=TaskType.EPIC;
+        this.taskType = TaskType.EPIC;
         this.subtasks = new ArrayList<>();
     }
 
