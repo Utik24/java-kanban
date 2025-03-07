@@ -26,6 +26,7 @@ public class Epic extends Task {
             throw new IllegalArgumentException("Subtask can't be Epic");
         }
         subtasks.add(subtask);
+        subtask.setEpicId(this.id);
         updateStatus();
     }
 
