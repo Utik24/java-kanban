@@ -1,5 +1,6 @@
 package managers;
 
+import Utility.StringUtility;
 import exceptions.ManagerSaveException;
 import model.Epic;
 import model.Status;
@@ -10,6 +11,9 @@ import model.TaskType;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+
+import static Utility.StringUtility.fromString;
+import static Utility.StringUtility.taskToString;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
@@ -22,13 +26,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     private void save() {
         try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
             writer.write("id,type,name,status,description,epic\n");
-            for (Task task : super.tasks.values()) {
-                writer.write(taskToString(task) + "\n");
+            for (Task task : tasks.values()) {
+                writer.write( taskToString(task) + "\n");
             }
-            for (Epic epic : super.epics.values()) {
+            for (Epic epic : epics.values()) {
                 writer.write(taskToString(epic) + "\n");
             }
-            for (SubTask subtask : super.subtasks.values()) {
+            for (SubTask subtask : subtasks.values()) {
                 writer.write(taskToString(subtask) + "\n");
             }
         } catch (IOException e) {
@@ -36,56 +40,33 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    public static FileBackedTaskManager loadFromFile(File file) {
-        FileBackedTaskManager manager = new FileBackedTaskManager(file);
+    public void loadFromFile() {
         try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
             reader.readLine(); // Пропускаем заголовок
             String line;
             while ((line = reader.readLine()) != null) {
                 Task task = fromString(line);
-                if (task instanceof Epic) {
-                    manager.epics.put(task.getId(), (Epic) task);
-                } else if (task instanceof SubTask) {
-                    manager.subtasks.put(task.getId(), (SubTask) task);
+                if (task.getTaskType().equals(TaskType.TASK)) {
+                    if (!tasks.containsValue(task)) {
+                        createTask(task);
+                    }
+                } else if (task.getTaskType().equals(TaskType.SUBTASK)) {
+                    if (!subtasks.containsValue(task)) {
+                        createSubtask((SubTask) task);
+                    }
                 } else {
-                    manager.tasks.put(task.getId(), task);
+                    if (!epics.containsValue(task)) {
+                        createEpic((Epic) task);
+                    }
                 }
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка загрузки задач из файла", e);
         }
-        return manager;
     }
 
 
-    private static String taskToString(Task task) {
-        return String.format("%d,%s,%s,%s,%s,%s",
-                task.getId(),
-                task.getTaskType(),
-                task.getTitle(),
-                task.getStatus(),
-                task.getDescription(),
-                (task instanceof SubTask) ? ((SubTask) task).getEpicId() : "");
-    }
 
-    private static Task fromString(String value) {
-        String[] parts = value.split(",");
-        int id = Integer.parseInt(parts[0]);
-        TaskType taskType = TaskType.valueOf(parts[1]);
-        String name = parts[2];
-        Status status = Status.valueOf(parts[3]);
-        String description = parts[4];
-
-        return switch (taskType) {
-            case TASK -> new Task(id, taskType, name, status, description);
-            case EPIC -> new Epic(id, taskType, name, status, description);
-            case SUBTASK -> {
-                int epicId = Integer.parseInt(parts[5]);
-                yield new SubTask(id, taskType, name, status, description, epicId);
-            }
-            default -> throw new IllegalArgumentException("Неизвестный тип задачи: " + taskType);
-        };
-    }
 
     @Override
     public void createTask(Task task) {
