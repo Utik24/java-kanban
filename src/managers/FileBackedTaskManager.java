@@ -1,14 +1,15 @@
 package managers;
 
-import Utility.StringUtility;
 import exceptions.ManagerSaveException;
 import model.Epic;
-import model.Status;
 import model.SubTask;
 import model.Task;
 import model.TaskType;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
@@ -27,7 +28,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
             writer.write("id,type,name,status,description,epic\n");
             for (Task task : tasks.values()) {
-                writer.write( taskToString(task) + "\n");
+                writer.write(taskToString(task) + "\n");
             }
             for (Epic epic : epics.values()) {
                 writer.write(taskToString(epic) + "\n");
@@ -64,8 +65,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             throw new ManagerSaveException("Ошибка загрузки задач из файла", e);
         }
     }
-
-
 
 
     @Override
