@@ -2,6 +2,8 @@ package utility;
 
 import model.*;
 
+import java.util.Optional;
+
 public class StringUtility {
     public static String taskToString(Task task) {
         return String.format("%d,%s,%s,%s,%s,%s",
@@ -10,8 +12,13 @@ public class StringUtility {
                 task.getTitle(),
                 task.getStatus(),
                 task.getDescription(),
-                (task instanceof SubTask) ? ((SubTask) task).getEpicId() : "");
+                Optional.of(task)
+                        .flatMap(t -> Optional.ofNullable(getEpicIdIfSubTask(t)))
+                        .map(String::valueOf)
+                        .orElse("")
+        );
     }
+
 
     public static Task fromString(String value) {
         String[] parts = value.split(",");
@@ -30,5 +37,13 @@ public class StringUtility {
             }
             default -> throw new IllegalArgumentException("Неизвестный тип задачи: " + taskType);
         };
+    }
+
+    private static Integer getEpicIdIfSubTask(Task task) {
+        return Optional.of(task)
+                .filter(SubTask.class::isInstance)
+                .map(SubTask.class::cast)
+                .map(SubTask::getEpicId)
+                .orElse(null);
     }
 }

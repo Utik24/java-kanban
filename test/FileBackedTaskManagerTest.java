@@ -36,27 +36,19 @@ public class FileBackedTaskManagerTest {
     @Test
     void shouldSaveAndLoadAllTaskTypesCorrectly() throws IOException {
         manager.createTask(task);
-        int taskId = task.getId();
         Epic epic = new Epic("Epic 1", "Epic Description");
         manager.createEpic(epic);
         int epicId = epic.getId();
-
         SubTask subtask = new SubTask("Subtask 1", "Subtask Description", epicId);
         manager.createSubtask(subtask);
-        int subtaskId = subtask.getId();
 
         System.out.println("Содержимое файла перед загрузкой:");
         Files.readAllLines(tempFile.toPath()).forEach(System.out::println);
-        FileBackedTaskManager loadedManager = new FileBackedTaskManager(tempFile);
-        loadedManager.loadFromFile();
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(tempFile);
+        assertEquals(manager.getAllSubtasks(), loadedManager.getAllSubtasks(), "Списки подзадач не совпадают");
+        assertEquals(manager.getAllTasks(), loadedManager.getAllTasks(), "Списки задач не совпадают");
+        assertEquals(manager.getAllEpics(), loadedManager.getAllEpics(), "Списки эпиков не совпадают");
 
-        assertEquals(1, loadedManager.getAllTasks().size(), "Количество задач не совпадает");
-        assertEquals(1, loadedManager.getAllEpics().size(), "Количество эпиков не совпадает");
-        assertEquals(1, loadedManager.getAllSubtasks().size(), "Количество подзадач не совпадает");
-
-        assertEquals(task, loadedManager.getTaskById(taskId), "Задача восстановлена некорректно");
-        assertEquals(epic, loadedManager.getEpicById(epicId), "Эпик восстановлен некорректно");
-        assertEquals(subtask, loadedManager.getSubTaskById(subtaskId), "Подзадача восстановлена некорректно");
     }
 
     @Test
@@ -72,6 +64,6 @@ public class FileBackedTaskManagerTest {
     void shouldThrowExceptionWhenLoadingCorruptedFile() throws IOException {
         Files.write(tempFile.toPath(), List.of("id,type,name,status,description,epic", "abc,INVALID,broken,NEW,test,123"));
 
-        assertThrows(IllegalArgumentException.class, () -> new FileBackedTaskManager(tempFile).loadFromFile());
+        assertThrows(IllegalArgumentException.class, () -> FileBackedTaskManager.loadFromFile(tempFile));
     }
 }

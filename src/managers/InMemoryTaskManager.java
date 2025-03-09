@@ -33,9 +33,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllTasks() {
-        for (int i = 0; i < tasks.size(); i++) {
-            if (getHistory().contains(tasks.get(i))) {
-                historyManager.remove(tasks.get(i).getId());
+        for (Task task : tasks.values()){
+            if (getHistory().contains(task)) {
+                historyManager.remove(task.getId());
             }
         }
         tasks.clear();

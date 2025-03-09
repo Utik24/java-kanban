@@ -16,12 +16,39 @@ import java.nio.file.StandardOpenOption;
 import static utility.StringUtility.fromString;
 import static utility.StringUtility.taskToString;
 
+
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
 
     public FileBackedTaskManager(File file) {
         super();
         this.file = file;
+    }
+
+    public static FileBackedTaskManager loadFromFile(File file) {
+        FileBackedTaskManager manager = new FileBackedTaskManager(file);
+        try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
+            reader.readLine(); // Пропускаем заголовок
+            String line;
+            while ((line = reader.readLine()) != null) {
+                Task task = fromString(line);
+                if (task.getTaskType().equals(TaskType.EPIC)) {
+                    if (!manager.epics.containsKey(task.getId())) {
+                        manager.epics.put(task.getId(), (Epic) task);
+                    }
+                } else if (task.getTaskType().equals(TaskType.SUBTASK)) {
+                    if (!manager.subtasks.containsKey(task.getId())) {
+                        manager.subtasks.put(task.getId(), (SubTask) task);
+                        manager.epics.get(((SubTask) task).getEpicId()).addSubtask((SubTask) task);
+                    }
+                } else {
+                    manager.tasks.put(task.getId(), task);
+                }
+            }
+        } catch (IOException e) {
+            throw new ManagerSaveException("Error loading tasks from file", e);
+        }
+        return manager;
     }
 
     private void save() {
@@ -40,32 +67,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             throw new ManagerSaveException("Ошибка загрузки задач в файл", e);
         }
     }
-
-    public void loadFromFile() {
-        try (BufferedReader reader = Files.newBufferedReader(file.toPath())) {
-            reader.readLine(); // Пропускаем заголовок
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Task task = fromString(line);
-                if (task.getTaskType().equals(TaskType.TASK)) {
-                    if (!tasks.containsValue(task)) {
-                        createTask(task);
-                    }
-                } else if (task.getTaskType().equals(TaskType.SUBTASK)) {
-                    if (!subtasks.containsValue(task)) {
-                        createSubtask((SubTask) task);
-                    }
-                } else {
-                    if (!epics.containsValue(task)) {
-                        createEpic((Epic) task);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new ManagerSaveException("Ошибка загрузки задач из файла", e);
-        }
-    }
-
 
     @Override
     public void createTask(Task task) {
