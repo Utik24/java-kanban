@@ -33,13 +33,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllTasks() {
-        for (Task task : tasks.values()){
+        for (Task task : tasks.values()) {
             if (getHistory().contains(task)) {
                 historyManager.remove(task.getId());
             }
         }
         tasks.clear();
-
     }
 
     @Override
