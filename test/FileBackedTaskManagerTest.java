@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +24,7 @@ public class FileBackedTaskManagerTest {
     void setUp() throws IOException {
         tempFile = File.createTempFile("tasks", ".csv");
         manager = new FileBackedTaskManager(tempFile);
-        task = new Task("Task 1", "Description 1");
+        task = new Task("Task 1", "Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
 
     }
 
@@ -38,8 +40,7 @@ public class FileBackedTaskManagerTest {
         manager.createTask(task);
         Epic epic = new Epic("Epic 1", "Epic Description");
         manager.createEpic(epic);
-        int epicId = epic.getId();
-        SubTask subtask = new SubTask("Subtask 1", "Subtask Description", epicId);
+        SubTask subtask = new SubTask("Subtask 1", "Subtask Description", epic.getId(), Duration.ofMinutes(15), LocalDateTime.of(2021, 1, 1, 0, 0));
         manager.createSubtask(subtask);
 
         System.out.println("Содержимое файла перед загрузкой:");
@@ -63,7 +64,20 @@ public class FileBackedTaskManagerTest {
     @Test
     void shouldThrowExceptionWhenLoadingCorruptedFile() throws IOException {
         Files.write(tempFile.toPath(), List.of("id,type,name,status,description,epic", "abc,INVALID,broken,NEW,test,123"));
-
         assertThrows(IllegalArgumentException.class, () -> FileBackedTaskManager.loadFromFile(tempFile));
+    }
+
+    @Test
+    void shouldNotThrowExceptionWhenFileIsValid() throws IOException {
+        manager.createTask(task);
+        Epic epic = new Epic("Epic 1", "Epic Description");
+        manager.createEpic(epic);
+        int epicId = epic.getId();
+        SubTask subtask = new SubTask("Subtask 1", "Subtask Description", epicId, Duration.ofMinutes(15), LocalDateTime.of(2021, 1, 1, 0, 0));
+        manager.createSubtask(subtask);
+        System.out.println("Содержимое файла перед загрузкой:");
+        Files.readAllLines(tempFile.toPath()).forEach(System.out::println);
+
+        assertDoesNotThrow(() -> FileBackedTaskManager.loadFromFile(tempFile), "Загрузка из валидного файла не должна выбрасывать исключений");
     }
 }

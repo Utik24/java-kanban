@@ -1,25 +1,31 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Epic extends Task {
     private List<SubTask> subtasks;
-
+    private LocalDateTime endTime;
 
     public Epic(String title, String description) {
         super(title, description);
         this.subtasks = new ArrayList<>();
+        updateTimeFields();
     }
 
     public Epic(int id, String title, Status status, String description) {
         super(id, title, status, description);
         this.subtasks = new ArrayList<>();
+        updateTimeFields();
     }
 
     public Epic(String title, String description, List<SubTask> subtasks) {
         super(title, description);
         this.subtasks = subtasks;
+        updateTimeFields();
     }
 
     public List<SubTask> getSubtasks() {
@@ -37,6 +43,7 @@ public class Epic extends Task {
         subtasks.add(subtask);
         subtask.setEpicId(this.id);
         updateStatus();
+        updateTimeFields();
     }
 
     public void updateStatus() {
@@ -64,5 +71,27 @@ public class Epic extends Task {
         } else {
             this.status = Status.IN_PROGRESS;
         }
+    }
+
+    public void updateTimeFields() {
+        this.startTime = subtasks.stream()
+                .map(SubTask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+
+        this.endTime = subtasks.stream()
+                .map(SubTask::getEndTime)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+
+        this.duration = subtasks.stream()
+                .map(SubTask::getDuration)
+                .reduce(Duration.ZERO, Duration::plus);
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 }

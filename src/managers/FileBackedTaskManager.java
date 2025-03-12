@@ -40,9 +40,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     if (!manager.subtasks.containsKey(task.getId())) {
                         manager.subtasks.put(task.getId(), (SubTask) task);
                         manager.epics.get(((SubTask) task).getEpicId()).addSubtask((SubTask) task);
+                        manager.prioritizedTasks.add(task);
                     }
                 } else {
                     manager.tasks.put(task.getId(), task);
+                    manager.prioritizedTasks.add(task);
                 }
             }
         } catch (IOException e) {
@@ -53,7 +55,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
         try (BufferedWriter writer = Files.newBufferedWriter(file.toPath(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
-            writer.write("id,type,name,status,description,epic\n");
+            writer.write("id,type,name,status,description,epic,duration,startTime\n");
             for (Task task : tasks.values()) {
                 writer.write(taskToString(task) + "\n");
             }
