@@ -13,9 +13,7 @@ public class Task {
     protected LocalDateTime startTime;
 
     public Task(String title, String description, Duration duration, LocalDateTime startTime) {
-        this.title = title;
-        this.description = description;
-        this.status = Status.NEW;
+        this(title, description);
         this.duration = duration;
         this.startTime = startTime;
     }
@@ -27,27 +25,20 @@ public class Task {
     }
 
     public Task(int id, String title, Status status, String description) {
+        this(title, description);
         this.id = id;
-        this.title = title;
-        this.description = description;
         this.status = status;
     }
 
     public Task(int id, String title, Status status, String description, Duration duration, LocalDateTime startTime) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
+        this(title, description, duration, startTime);
         this.status = status;
-        this.duration = duration;
-        this.startTime = startTime;
+        this.id = id;
     }
 
     public Task(String title, Status status, String description, Duration duration, LocalDateTime startTime) {
-        this.title = title;
-        this.description = description;
+        this(title, description, duration, startTime);
         this.status = status;
-        this.duration = duration;
-        this.startTime = startTime;
     }
 
     public TaskType getTaskType() {

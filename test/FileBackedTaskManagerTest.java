@@ -1,3 +1,4 @@
+import exceptions.IntersectionException;
 import managers.FileBackedTaskManager;
 import model.Epic;
 import model.SubTask;
@@ -14,15 +15,29 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FileBackedTaskManagerTest {
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     private File tempFile;
     private FileBackedTaskManager manager;
     private Task task;
 
 
+    @Override
+    protected FileBackedTaskManager createTaskManager() {
+        try {
+            tempFile = File.createTempFile("tasks", ".csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return new FileBackedTaskManager(tempFile);
+    }
+
     @BeforeEach
-    void setUp() throws IOException {
-        tempFile = File.createTempFile("tasks", ".csv");
+    void setUp() {
+        try {
+            tempFile = File.createTempFile("tasks", ".csv");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         manager = new FileBackedTaskManager(tempFile);
         task = new Task("Task 1", "Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
 
@@ -36,7 +51,7 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    void shouldSaveAndLoadAllTaskTypesCorrectly() throws IOException {
+    void shouldSaveAndLoadAllTaskTypesCorrectly() throws IOException, IntersectionException {
         manager.createTask(task);
         Epic epic = new Epic("Epic 1", "Epic Description");
         manager.createEpic(epic);
@@ -68,7 +83,7 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    void shouldNotThrowExceptionWhenFileIsValid() throws IOException {
+    void shouldNotThrowExceptionWhenFileIsValid() throws IOException, IntersectionException {
         manager.createTask(task);
         Epic epic = new Epic("Epic 1", "Epic Description");
         manager.createEpic(epic);

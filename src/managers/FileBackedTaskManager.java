@@ -1,5 +1,6 @@
 package managers;
 
+import exceptions.IntersectionException;
 import exceptions.ManagerSaveException;
 import model.Epic;
 import model.SubTask;
@@ -71,7 +72,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void createTask(Task task) {
+    public void createTask(Task task) throws IntersectionException {
         super.createTask(task);
         save();
     }
@@ -83,13 +84,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void createSubtask(SubTask subtask) {
+    public void createSubtask(SubTask subtask) throws IntersectionException {
         super.createSubtask(subtask);
         save();
     }
 
     @Override
-    public void updateTask(Task task) {
+    public void updateTask(Task task) throws IntersectionException {
         super.updateTask(task);
         save();
     }
@@ -101,7 +102,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateSubTask(SubTask subtask) {
+    public void updateSubTask(SubTask subtask) throws IntersectionException {
         super.updateSubTask(subtask);
         save();
     }

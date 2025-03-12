@@ -1,5 +1,6 @@
 package interfaces;
 
+import exceptions.IntersectionException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
@@ -15,11 +16,11 @@ public interface TaskManager {
 
     void removeAllEpics();
 
-    void createTask(Task task);
+    void createTask(Task task) throws IntersectionException;
 
     void createEpic(Epic epic);
 
-    void createSubtask(SubTask subtask);
+    void createSubtask(SubTask subtask) throws IntersectionException;
 
     List<Task> getAllTasks();
 
@@ -33,11 +34,11 @@ public interface TaskManager {
 
     Task getSubTaskById(int id);
 
-    void updateTask(Task task);
+    void updateTask(Task task) throws IntersectionException;
 
     void updateEpic(Epic epic);
 
-    void updateSubTask(SubTask subtask);
+    void updateSubTask(SubTask subtask) throws IntersectionException;
 
     void removeTaskById(int id);
 
