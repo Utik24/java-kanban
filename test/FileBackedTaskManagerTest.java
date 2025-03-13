@@ -1,4 +1,3 @@
-import exceptions.IntersectionException;
 import managers.FileBackedTaskManager;
 import model.Epic;
 import model.SubTask;
@@ -24,7 +23,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     @Override
     protected FileBackedTaskManager createTaskManager() {
         try {
-            tempFile = File.createTempFile("tasks", ".csv");
+            tempFile = File.createTempFile("tasks", ".csv");//Java не дает скомпилить если не обработать исключение поэтому пришлось оставить
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -33,11 +32,6 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
     @BeforeEach
     void setUp() {
-        try {
-            tempFile = File.createTempFile("tasks", ".csv");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         manager = new FileBackedTaskManager(tempFile);
         task = new Task("Task 1", "Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
 
@@ -51,7 +45,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     }
 
     @Test
-    void shouldSaveAndLoadAllTaskTypesCorrectly() throws IOException, IntersectionException {
+    void shouldSaveAndLoadAllTaskTypesCorrectly() throws IOException {
         manager.createTask(task);
         Epic epic = new Epic("Epic 1", "Epic Description");
         manager.createEpic(epic);
@@ -83,7 +77,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     }
 
     @Test
-    void shouldNotThrowExceptionWhenFileIsValid() throws IOException, IntersectionException {
+    void shouldNotThrowExceptionWhenFileIsValid() throws IOException {
         manager.createTask(task);
         Epic epic = new Epic("Epic 1", "Epic Description");
         manager.createEpic(epic);

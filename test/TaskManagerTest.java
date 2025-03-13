@@ -32,7 +32,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldCreateTask() throws IntersectionException {
+    void shouldCreateTask() {
         taskManager.createTask(task);
         assertEquals(1, taskManager.getAllTasks().size());
     }
@@ -44,7 +44,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldCreateSubTaskAndLinkToEpic() throws IntersectionException {
+    void shouldCreateSubTaskAndLinkToEpic() {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subTask);
         epic.addSubtask(subTask);
@@ -53,7 +53,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldUpdateEpicStatusBasedOnSubtasks() throws IntersectionException {
+    void shouldUpdateEpicStatusBasedOnSubtasks() {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subTask);
         epic.addSubtask(subTask);
@@ -66,7 +66,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldDetectTaskIntersection() throws IntersectionException {
+    void shouldDetectTaskIntersection() {
         taskManager.createTask(task);
         Task task2 = new Task("Task 2", "Description 2", Duration.ofMinutes(15), LocalDateTime.of(2021, 1, 1, 0, 5));
         IntersectionException exception = assertThrows(
@@ -82,7 +82,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldRemoveTask() throws IntersectionException {
+    void shouldRemoveTask() {
         taskManager.createTask(task);
         taskManager.removeTaskById(task.getId());
 
@@ -90,7 +90,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldRemoveAllTask() throws IntersectionException {
+    void shouldRemoveAllTask() {
         taskManager.createTask(task);
         taskManager.createTask(task2);
         taskManager.removeAllTasks();
@@ -99,7 +99,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldRemoveSubTask() throws IntersectionException {
+    void shouldRemoveSubTask() {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subTask);
         taskManager.removeSubTaskById(subTask.getId());
@@ -108,7 +108,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldRemoveAllSubTask() throws IntersectionException {
+    void shouldRemoveAllSubTask() {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subTask);
         taskManager.createSubtask(subTask2);
@@ -118,7 +118,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldRemoveEpicAndRelatedSubtasks() throws IntersectionException {
+    void shouldRemoveEpicAndRelatedSubtasks() {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subTask);
         epic.addSubtask(subTask);
@@ -129,7 +129,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldRemoveAllEpicAndRelatedSubtasks() throws IntersectionException {
+    void shouldRemoveAllEpicAndRelatedSubtasks() {
         taskManager.createEpic(epic);
         Epic epic2 = new Epic("Epic 2", "Epic Description 2");
         taskManager.createEpic(epic2);
@@ -158,7 +158,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getTaskById_shouldReturnTaskWhenExists() throws IntersectionException {
+    void getTaskById_shouldReturnTaskWhenExists() {
         taskManager.createTask(task);
         Task retrievedTask = taskManager.getTaskById(task.getId());
         assertNotNull(retrievedTask);
@@ -174,7 +174,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getSubTaskById_shouldReturnSubtaskWhenExists() throws IntersectionException {
+    void getSubTaskById_shouldReturnSubtaskWhenExists() {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subTask);
         SubTask retrievedSubtask = (SubTask) taskManager.getSubTaskById(subTask.getId());
@@ -183,7 +183,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void updateTask_shouldUpdateTask() throws IntersectionException {
+    void updateTask_shouldUpdateTask() {
         taskManager.createTask(task);
         task.setTitle("Updated Task");
         taskManager.updateTask(task);
@@ -201,7 +201,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void updateSubTask_shouldUpdateSubtask() throws IntersectionException {
+    void updateSubTask_shouldUpdateSubtask() {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subTask);
         subTask.setTitle("Updated Subtask");
@@ -211,14 +211,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void removeTaskById_shouldRemoveTask() throws IntersectionException {
+    void removeTaskById_shouldRemoveTask() {
         taskManager.createTask(task);
         taskManager.removeTaskById(task.getId());
         assertNull(taskManager.getTaskById(task.getId()));
     }
 
     @Test
-    void removeSubTaskById_shouldRemoveSubtask() throws IntersectionException {
+    void removeSubTaskById_shouldRemoveSubtask() {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subTask);
         taskManager.removeSubTaskById(subTask.getId());
@@ -239,7 +239,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getSubtasksByEpicId_shouldReturnSubtasksWhenPresent() throws IntersectionException {
+    void getSubtasksByEpicId_shouldReturnSubtasksWhenPresent() {
         taskManager.createEpic(epic);
         taskManager.createSubtask(subTask);
         epic.addSubtask(subTask);
@@ -248,12 +248,45 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getPrioritizedTasks_shouldReturnSortedTasks() throws IntersectionException {
+    void getPrioritizedTasks_shouldReturnSortedTasks() {
         taskManager.createTask(task);
         taskManager.createTask(task2);
         List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
         assertEquals(task2, prioritizedTasks.get(1));
         assertEquals(task, prioritizedTasks.get(0));
     }
+
+    @Test
+    void testGetPrioritizedTasks() {
+        Task task1 = new Task("Task 1", "Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
+        Task task2 = new Task("Task 2", "Description 2", Duration.ofMinutes(15), LocalDateTime.of(2023, 1, 1, 0, 0));
+        Task task3 = new Task("Task 3", "Description 3", Duration.ofMinutes(15), LocalDateTime.of(2021, 1, 1, 0, 0));
+        taskManager.createTask(task1);
+        taskManager.createTask(task2);
+        taskManager.createTask(task3);
+        System.out.println(taskManager.getPrioritizedTasks());
+        assertEquals(taskManager.getPrioritizedTasks(), List.of(task3, task1, task2));
+    }
+
+
+    @Test
+    void testIdConflictInTaskManager() {
+        task.setId(1);
+        taskManager.createTask(task);
+        task2.setId(1);
+        taskManager.createTask(task2);
+        assertEquals(task, taskManager.getTaskById(1));
+        assertNotEquals(task2, taskManager.getTaskById(1));
+    }
+
+    @Test
+    void testTaskImmutabilityOnAddition() {
+        taskManager.createTask(task);
+        Task retrievedTask = taskManager.getTaskById(task.getId());
+        assertEquals(task.getTitle(), retrievedTask.getTitle());
+        assertEquals(task.getDescription(), retrievedTask.getDescription());
+        assertEquals(task.getStatus(), retrievedTask.getStatus());
+    }
+
 
 }

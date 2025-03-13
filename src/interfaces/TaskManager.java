@@ -16,11 +16,11 @@ public interface TaskManager {
 
     void removeAllEpics();
 
-    void createTask(Task task) throws IntersectionException;
+    void createTask(Task task);
 
     void createEpic(Epic epic);
 
-    void createSubtask(SubTask subtask) throws IntersectionException;
+    void createSubtask(SubTask subtask);
 
     List<Task> getAllTasks();
 
@@ -34,11 +34,11 @@ public interface TaskManager {
 
     Task getSubTaskById(int id);
 
-    void updateTask(Task task) throws IntersectionException;
+    void updateTask(Task task);
 
     void updateEpic(Epic epic);
 
-    void updateSubTask(SubTask subtask) throws IntersectionException;
+    void updateSubTask(SubTask subtask);
 
     void removeTaskById(int id);
 

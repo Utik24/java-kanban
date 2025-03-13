@@ -54,9 +54,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (Integer id : subtaskIds) {
             SubTask subtask = subtasks.get(id);
             subtasks.remove(id);
-            if (getHistory().contains(subtask)) {
-                historyManager.remove(subtask.getId());
-            }
+            historyManager.remove(subtask.getId());
             taskIntersectionValidation.removeTask(subtask.getStartTime(), subtask.getDuration());
             prioritizedTasks.remove(subtask);
         }
@@ -74,16 +72,14 @@ public class InMemoryTaskManager implements TaskManager {
                         subtasks.remove(subtask.getId());
                         historyManager.remove(subtask.getId());
                     });
-                    if (getHistory().contains(epic)) {
-                        historyManager.remove(epic.getId());
-                    }
+                    historyManager.remove(epic.getId());
                 });
         epics.clear();
     }
 
 
     @Override
-    public void createTask(Task task) throws IntersectionException {
+    public void createTask(Task task) {
         if (taskIntersectionValidation.addTask(task.getStartTime(), task.getDuration())) {
             task.setId(generateId());
             tasks.put(task.getId(), task);
@@ -104,7 +100,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void createSubtask(SubTask subtask) throws IntersectionException {
+    public void createSubtask(SubTask subtask) {
         if (taskIntersectionValidation.addTask(subtask.getStartTime(), subtask.getDuration())) {
             subtask.setId(generateId());
             subtasks.put(subtask.getId(), subtask);
@@ -158,7 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateTask(Task task) throws IntersectionException {
+    public void updateTask(Task task) {
         if (tasks.containsKey(task.getId())) {
             Task oldTask = tasks.get(task.getId());
             if (taskIntersectionValidation.updateTask(oldTask.getStartTime(), oldTask.getDuration(), task.getStartTime(), task.getDuration())) {
@@ -179,7 +175,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubTask(SubTask subtask) throws IntersectionException {
+    public void updateSubTask(SubTask subtask) {
         if (subtasks.containsKey(subtask.getId())) {
             SubTask oldSubtask = subtasks.get(subtask.getId());
             if (taskIntersectionValidation.updateTask(oldSubtask.getStartTime(), oldSubtask.getDuration(), subtask.getStartTime(), subtask.getDuration())) {
@@ -207,9 +203,7 @@ public class InMemoryTaskManager implements TaskManager {
                     Epic epic = epics.get(subtask.getEpicId());
                     if (epic != null) {
                         epic.getSubtasks().removeIf(s -> s.getId() == subtask.getId());
-                        if (getHistory().contains(subtask)) {
-                            historyManager.remove(id);
-                        }
+                        historyManager.remove(id);
                         epic.updateStatus();
                         epic.updateTimeFields();
                     }
@@ -222,10 +216,8 @@ public class InMemoryTaskManager implements TaskManager {
         Optional.ofNullable(tasks.remove(id))
                 .ifPresent(task -> {
                     taskIntersectionValidation.removeTask(task.getStartTime(), task.getDuration());
-                    if (getHistory().contains(task)) {
-                        prioritizedTasks.remove(task);
-                        historyManager.remove(id);
-                    }
+                    prioritizedTasks.remove(task);
+                    historyManager.remove(id);
                 });
     }
 
@@ -240,9 +232,7 @@ public class InMemoryTaskManager implements TaskManager {
                         subtasks.remove(subtask.getId());
                         historyManager.remove(subtask.getId());
                     });
-                    if (getHistory().contains(epic)) {
-                        historyManager.remove(id);
-                    }
+                    historyManager.remove(id);
                 });
     }
 
