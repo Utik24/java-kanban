@@ -2,11 +2,13 @@ package utility;
 
 import model.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class StringUtility {
     public static String taskToString(Task task) {
-        return String.format("%d,%s,%s,%s,%s,%s",
+        return String.format("%d,%s,%s,%s,%s,%s,%s,%s",
                 task.getId(),
                 task.getTaskType(),
                 task.getTitle(),
@@ -15,7 +17,10 @@ public class StringUtility {
                 Optional.of(task)
                         .flatMap(t -> Optional.ofNullable(getEpicIdIfSubTask(t)))
                         .map(String::valueOf)
-                        .orElse("")
+                        .orElse(""),
+                task.getDuration().toMinutes(),
+                task.getStartTime()
+
         );
     }
 
@@ -27,13 +32,14 @@ public class StringUtility {
         String name = parts[2];
         Status status = Status.valueOf(parts[3]);
         String description = parts[4];
-
+        Duration duration = Duration.ofMinutes(Long.parseLong(parts[6]));
+        LocalDateTime starTime = LocalDateTime.parse(parts[7]);
         return switch (taskType) {
-            case TASK -> new Task(id, name, status, description);
+            case TASK -> new Task(id, name, status, description, duration, starTime);
             case EPIC -> new Epic(id, name, status, description);
             case SUBTASK -> {
                 int epicId = Integer.parseInt(parts[5]);
-                yield new SubTask(id, name, status, description, epicId);
+                yield new SubTask(id, name, status, description, epicId, duration, starTime);
             }
             default -> throw new IllegalArgumentException("Неизвестный тип задачи: " + taskType);
         };
