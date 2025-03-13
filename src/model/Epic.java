@@ -22,12 +22,6 @@ public class Epic extends Task {
         updateTimeFields();
     }
 
-    public Epic(String title, String description, List<SubTask> subtasks) {
-        super(title, description);
-        this.subtasks = subtasks;
-        updateTimeFields();
-    }
-
     public List<SubTask> getSubtasks() {
         return subtasks;
     }

@@ -1,6 +1,5 @@
 package interfaces;
 
-import exceptions.IntersectionException;
 import model.Epic;
 import model.SubTask;
 import model.Task;
