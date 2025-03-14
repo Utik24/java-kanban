@@ -24,13 +24,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HttpTaskManagerTasksTest {
 
     protected Task task = new Task("Task 1", "Description 1", Duration.ofMinutes(15), LocalDateTime.of(2021, 1, 1, 0, 0));
-    protected Task task2 = new Task("Task 2", "Description 2", Duration.ofMinutes(15), LocalDateTime.of(2023, 1, 1, 0, 0));
     protected Epic epic = new Epic("Epic 1", "Epic Description");
     protected SubTask subTask = new SubTask("Subtask 1", "Subtask Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
-    protected SubTask subTask2 = new SubTask("Subtask 2", "Subtask Description 2", Duration.ofMinutes(15), LocalDateTime.of(2024, 1, 1, 0, 0));
     private InMemoryTaskManager manager = new InMemoryTaskManager();
     private HttpTaskServer taskServer = new HttpTaskServer(manager);
-    private Gson gson = new Gson();
 
     @BeforeEach
     public void setUp() throws IOException {

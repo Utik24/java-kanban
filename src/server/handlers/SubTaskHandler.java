@@ -77,7 +77,6 @@ public class SubTaskHandler extends BaseHttpHandler {
 
     public void deleteSubTask(HttpExchange exchange) throws IOException {
         String response;
-        String[] path = exchange.getRequestURI().getPath().split("/");
         int id = getId(exchange);
         taskManager.removeSubTaskById(id);
         response = "Подзадача удалена успешно!";

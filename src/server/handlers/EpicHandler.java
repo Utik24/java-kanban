@@ -84,7 +84,6 @@ public class EpicHandler extends BaseHttpHandler {
 
     public void deleteEpic(HttpExchange exchange) throws IOException {
         String response;
-        String[] path = exchange.getRequestURI().getPath().split("/");
         int id = getId(exchange);
         taskManager.removeEpicById(id);
         response = "Подзадача удалена успешно!";
