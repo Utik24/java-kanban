@@ -1,7 +1,7 @@
 package server.handlers;
 
-import com.sun.net.httpserver.HttpExchange;
 import com.google.gson.Gson;
+import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import interfaces.TaskManager;
 import validations.TaskIntersectionValidation;
@@ -21,12 +21,13 @@ public abstract class BaseHttpHandler implements HttpHandler {
         this.gson = new Gson();
         this.taskIntersectionValidation = new TaskIntersectionValidation();
     }
-    public Integer getId(HttpExchange exchange){
+
+    public Integer getId(HttpExchange exchange) {
         String[] path = exchange.getRequestURI().getPath().split("/");
         return Integer.parseInt(path[2]);
     }
 
-    protected void sendText(HttpExchange exchange, String response,int code) throws IOException {
+    protected void sendText(HttpExchange exchange, String response, int code) throws IOException {
         byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(code, responseBytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
