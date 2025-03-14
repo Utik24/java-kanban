@@ -12,8 +12,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +25,16 @@ public class HttpTaskManagerTasksTest {
     protected SubTask subTask = new SubTask("Subtask 1", "Subtask Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
     private InMemoryTaskManager manager = new InMemoryTaskManager();
     private HttpTaskServer taskServer = new HttpTaskServer(manager);
+    private String taskJson = "{\n" +
+            "  \"title\": \"Task 1\",\n" +
+            "  \"description\": \"Description 1\",\n" +
+            "  \"duration\": \"PT15M\",\n" +
+            "  \"startTime\": \"2022-01-01T00:00:00\"\n" +
+            "}";
+    private String epicJson = "{\n" +
+            "  \"title\": \"Epic 1\",\n" +
+            "  \"description\": \"Description 1\"\n" +
+            "}";
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -43,7 +51,6 @@ public class HttpTaskManagerTasksTest {
 
     @Test
     public void testAddTask() throws IOException, InterruptedException {
-        String taskJson = new String(Files.readAllBytes(Paths.get("C:\\Users\\кирилл\\IdeaProjects\\java-kanban\\test\\jsons\\testTask.json")));
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/tasks");
@@ -126,12 +133,12 @@ public class HttpTaskManagerTasksTest {
 
     @Test
     public void testAddSubTask() throws IOException, InterruptedException {
-        String SubTaskJson = new String(Files.readAllBytes(Paths.get("C:\\Users\\кирилл\\IdeaProjects\\java-kanban\\test\\jsons\\testTask.json")));
+
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/subtasks");
         HttpRequest request = HttpRequest.newBuilder().uri(url)
-                .POST(HttpRequest.BodyPublishers.ofString(SubTaskJson))
+                .POST(HttpRequest.BodyPublishers.ofString(taskJson))
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -178,7 +185,6 @@ public class HttpTaskManagerTasksTest {
 
     @Test
     public void testAddEpic() throws IOException, InterruptedException {
-        String epicJson = new String(Files.readAllBytes(Paths.get("C:\\Users\\кирилл\\IdeaProjects\\java-kanban\\test\\jsons\\testEpic.json")));
 
 
         HttpClient client = HttpClient.newHttpClient();
