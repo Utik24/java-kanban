@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import exceptions.IntersectionException;
 import interfaces.TaskManager;
 import model.Epic;
-import utility.ConverterJsonToTask;
 
 import java.io.IOException;
 
@@ -20,7 +19,8 @@ public class EpicHandler extends BaseHttpHandler {
         String method = exchange.getRequestMethod();
 
         if ("POST".equals(method)) {
-            Epic epic = ConverterJsonToTask.converterEpicFromJson(exchange);
+            String json = new String(exchange.getRequestBody().readAllBytes());
+            Epic epic = gson.fromJson(json, Epic.class);
             try {
                 createEpicOrUpdateEpic(epic, exchange);
             } catch (JsonSyntaxException e) {
@@ -41,40 +41,37 @@ public class EpicHandler extends BaseHttpHandler {
     }
 
     public void createEpicOrUpdateEpic(Epic epic, HttpExchange exchange) throws IOException {
-        String response = "";
         String[] path = exchange.getRequestURI().getPath().split("/");
         if (path.length == 3) {
             try {
                 int id = getId(exchange);
                 epic.setId(id);
                 taskManager.updateEpic(epic);
-                response = "Подзадача обновлена успешно! Task ID: " + epic.getId();
             } catch (IntersectionException e) {
                 sendHasInteractions(exchange);
             }
         } else {
             taskManager.createEpic(epic);
-            response = "Подзадача создана успешно! Task ID: " + epic.getId();
         }
-        sendText(exchange, response, 201);
+        sendCreated(exchange);
     }
 
     public void showAllOrIdEpics(HttpExchange exchange) throws IOException {
         String response = "";
         String[] path = exchange.getRequestURI().getPath().split("/");
         if (path.length == 2) {
-            response = "все Подзадачи: \n" + taskManager.getAllEpics().toString();
+            response = gson.toJson(taskManager.getAllEpics());
         } else if (path.length == 4) {
             int id = getId(exchange);
             if (taskManager.getEpicById(id) != null) {
-                response = "Все Подзадачи эпика с id: " + id + " \n" + taskManager.getSubTaskById(id);
+                response = gson.toJson(taskManager.getSubtasksByEpicId(id));
             } else {
                 sendNotFound(exchange);
             }
         } else {
             int id = getId(exchange);
             if (taskManager.getEpicById(id) != null) {
-                response = "Подзадача под Id: " + id + "\n" + taskManager.getEpicById(id);
+                response = gson.toJson(taskManager.getEpicById(id));
             } else {
                 sendNotFound(exchange);
             }
@@ -85,8 +82,13 @@ public class EpicHandler extends BaseHttpHandler {
     public void deleteEpic(HttpExchange exchange) throws IOException {
         String response;
         int id = getId(exchange);
-        taskManager.removeEpicById(id);
-        response = "Подзадача удалена успешно!";
-        sendText(exchange, response, 200);
+        Epic epic = taskManager.getEpicById(id);
+        if (epic == null) {
+            sendNotFound(exchange);
+        } else {
+            taskManager.removeTaskById(id);
+            response = gson.toJson(epic);
+            sendText(exchange, response, 200);
+        }
     }
 }

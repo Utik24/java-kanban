@@ -21,10 +21,9 @@ public class PrioritizedHandler extends BaseHttpHandler {
         String method = exchange.getRequestMethod();
 
         if ("GET".equals(method)) {
-            // Получаем приоритетные задачи
             List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
-            String response = prioritizedTasks.toString();  // Преобразуем список задач в JSON
-            sendText(exchange, response, 200);  // Отправляем ответ с приоритетными задачами
+            String response = gson.toJson(prioritizedTasks);
+            sendText(exchange, response, 200);
         }
     }
 }

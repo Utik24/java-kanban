@@ -19,7 +19,7 @@ public class HistoryHandler extends BaseHttpHandler {
 
         if (method.equals("GET")) {
             List<Task> history = taskManager.getHistory();
-            String response = history.toString();
+            String response = gson.toJson(history);
             sendText(exchange, response, 200);
         }
     }

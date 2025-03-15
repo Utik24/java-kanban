@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import exceptions.IntersectionException;
 import interfaces.TaskManager;
 import model.SubTask;
-import utility.ConverterJsonToTask;
 
 import java.io.IOException;
 
@@ -20,7 +19,8 @@ public class SubTaskHandler extends BaseHttpHandler {
         String method = exchange.getRequestMethod();
 
         if ("POST".equals(method)) {
-            SubTask subTask = ConverterJsonToTask.converterSubTaskFromJson(exchange);
+            String json = new String(exchange.getRequestBody().readAllBytes());
+            SubTask subTask = gson.fromJson(json, SubTask.class);
             try {
                 createSubTaskOrUpdateSubTask(subTask, exchange);
             } catch (JsonSyntaxException e) {
@@ -41,33 +41,30 @@ public class SubTaskHandler extends BaseHttpHandler {
     }
 
     public void createSubTaskOrUpdateSubTask(SubTask subTask, HttpExchange exchange) throws IOException {
-        String response = "";
         String[] path = exchange.getRequestURI().getPath().split("/");
         if (path.length == 3) {
             try {
                 int id = getId(exchange);
                 subTask.setId(id);
                 taskManager.updateSubTask(subTask);
-                response = "Подзадача обновлена успешно! Task ID: " + subTask.getId();
             } catch (IntersectionException e) {
                 sendHasInteractions(exchange);
             }
         } else {
             taskManager.createSubtask(subTask);
-            response = "Подзадача создана успешно! Task ID: " + subTask.getId();
         }
-        sendText(exchange, response, 201);
+        sendCreated(exchange);
     }
 
     public void showAllOrIdSubTasks(HttpExchange exchange) throws IOException {
         String response = "";
         String[] path = exchange.getRequestURI().getPath().split("/");
         if (path.length != 3) {
-            response = "все Подзадачи: \n" + taskManager.getAllSubtasks().toString();
+            response = gson.toJson(taskManager.getAllSubtasks());
         } else {
             int id = getId(exchange);
             if (taskManager.getSubTaskById(id) != null) {
-                response = "Подзадача под Id: " + id + "\n" + taskManager.getSubTaskById(id);
+                response = gson.toJson(taskManager.getSubTaskById(id));
             } else {
                 sendNotFound(exchange);
             }
@@ -78,8 +75,13 @@ public class SubTaskHandler extends BaseHttpHandler {
     public void deleteSubTask(HttpExchange exchange) throws IOException {
         String response;
         int id = getId(exchange);
-        taskManager.removeSubTaskById(id);
-        response = "Подзадача удалена успешно!";
-        sendText(exchange, response, 200);
+        SubTask subTask = taskManager.getSubTaskById(id);
+        if (subTask == null) {
+            sendNotFound(exchange);
+        } else {
+            taskManager.removeTaskById(id);
+            response = gson.toJson(subTask);
+            sendText(exchange, response, 200);
+        }
     }
 }
