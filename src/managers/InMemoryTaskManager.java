@@ -94,8 +94,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void createEpic(Epic epic) {
         epic.setId(generateId());
-        epic.updateTimeFields();
         epic.updateStatus();
+        epic.updateTimeFields();
         epics.put(epic.getId(), epic);
     }
 
@@ -147,7 +147,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getSubTaskById(int id) {
+    public SubTask getSubTaskById(int id) {
         SubTask subtask = subtasks.get(id);
         historyManager.add(subtask); // Добавляем в историю
         return subtask;
