@@ -6,9 +6,7 @@ import deserializers.LocalDateTimeDeserializer;
 import interfaces.TaskManager;
 import managers.InMemoryTaskManager;
 import model.Task;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import server.HttpTaskServer;
 
 import java.io.IOException;
@@ -35,46 +33,48 @@ class TaskHandlerTest {
             .setPrettyPrinting()
             .create();
 
-    @BeforeAll
-    static void startServer() throws IOException {
+    @BeforeEach
+    void startServer() throws IOException {
         TaskManager taskManager = new InMemoryTaskManager();
         server = new HttpTaskServer(taskManager);
         server.initServer();
     }
 
-    @AfterAll
-    static void stopServer() {
+    @AfterEach
+    void stopServer() {
         server.closeServer();
     }
 
     @Test
     void testCreateTaskSuccess() throws IOException, InterruptedException {
-        String jsonTask = """
-                {
-                  "title": "Task 1",
-                  "description": "Description 1",
-                  "duration": "PT15M",
-                  "startTime": "2022-01-01T00:00:00"
-                }
-                """;
-
+        Task task = new Task("Task 1", "Description 1", Duration.ofMinutes(15), LocalDateTime.of(2021, 1, 1, 0, 0));
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
-                .POST(HttpRequest.BodyPublishers.ofString(jsonTask))
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
                 .header("Content-Type", "application/json")
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, response.statusCode());
+        assertEquals(1,server.getTaskManager().getAllTasks().size());
     }
 
     @Test
     void testGetAllTasksSuccess() throws IOException, InterruptedException {
+        Task task = new Task("Task 1", "Description 1", Duration.ofMinutes(15), LocalDateTime.of(2021, 1, 1, 0, 0));
         HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL))
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
+                .header("Content-Type", "application/json")
+                .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(201, response.statusCode());
+        request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
                 .GET()
                 .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
 
@@ -82,7 +82,7 @@ class TaskHandlerTest {
         }.getType();
         List<Task> tasks = gson.fromJson(response.body(), taskListType);
 
-        assertNotNull(tasks);
+        assertEquals(server.getTaskManager().getAllTasks(),tasks);
     }
 
     @Test
@@ -98,12 +98,13 @@ class TaskHandlerTest {
 
     @Test
     void testDeleteNonExistentTask() throws IOException, InterruptedException {
+        int mapSize = server.getTaskManager().getAllTasks().size();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/999"))
                 .DELETE()
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(404, response.statusCode());
+        assertEquals(mapSize, server.getTaskManager().getAllTasks().size());
     }
 }

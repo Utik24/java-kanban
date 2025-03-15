@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class SubTaskHandlerTest {
 
@@ -49,37 +48,39 @@ class SubTaskHandlerTest {
 
     @Test
     void testCreateSubTaskSuccess() throws IOException, InterruptedException {
-        // JSON-объект подзадачи
-        String jsonSubTask = """
-                {
-                  "title": "SubTask 1",
-                  "description": "Description 1",
-                  "duration": "PT30M",
-                  "startTime": "2022-01-02T10:00:00",
-                  "epicId": 1
-                }
-                """;
+        SubTask subTask = new SubTask("Subtask 1", "Subtask Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
 
-        // Отправляем POST-запрос
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
-                .POST(HttpRequest.BodyPublishers.ofString(jsonSubTask))
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subTask)))
                 .header("Content-Type", "application/json")
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Проверяем статус 201
         assertEquals(201, response.statusCode());
+        assertEquals(1, server.getTaskManager().getAllSubtasks().size());
     }
 
     @Test
     void testGetAllSubTasksSuccess() throws IOException, InterruptedException {
-        // Отправляем GET-запрос
+        SubTask subTask = new SubTask("Subtask 1", "Subtask Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
+
         HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL))
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subTask)))
+                .header("Content-Type", "application/json")
+                .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        // Проверяем статус 201
+        assertEquals(201, response.statusCode());
+        // Отправляем GET-запрос
+        request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
                 .GET()
                 .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Проверяем статус 200
         assertEquals(200, response.statusCode());
@@ -90,25 +91,16 @@ class SubTaskHandlerTest {
         List<SubTask> subTasks = gson.fromJson(response.body(), subTaskListType);
 
         // Проверяем, что список не пустой
-        assertNotNull(subTasks);
+        assertEquals(server.getTaskManager().getAllSubtasks(), subTasks);
     }
 
     @Test
     void testDeleteSubTaskSuccess() throws IOException, InterruptedException {
-        String jsonSubTask = """
-                {
-                  "title": "SubTask 1",
-                  "description": "Description 1",
-                  "duration": "PT30M",
-                  "startTime": "2022-01-02T10:00:00",
-                  "epicId": 1
-                }
-                """;
+        SubTask subTask = new SubTask("Subtask 1", "Subtask Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
 
-        // Отправляем POST-запрос
         HttpRequest request1 = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
-                .POST(HttpRequest.BodyPublishers.ofString(jsonSubTask))
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subTask)))
                 .header("Content-Type", "application/json")
                 .build();
         HttpResponse<String> response = client.send(request1, HttpResponse.BodyHandlers.ofString());
@@ -129,6 +121,7 @@ class SubTaskHandlerTest {
     @Test
     void testDeleteNonExistentSubTask() throws IOException, InterruptedException {
         // Отправляем DELETE-запрос к несуществующему id
+        int mapSize = server.getTaskManager().getAllSubtasks().size();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/999"))
                 .DELETE()
@@ -136,6 +129,6 @@ class SubTaskHandlerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Ожидаем 404 Not Found
-        assertEquals(404, response.statusCode());
+        assertEquals(mapSize, server.getTaskManager().getAllSubtasks().size());
     }
 }

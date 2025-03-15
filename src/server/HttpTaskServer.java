@@ -22,6 +22,10 @@ public class HttpTaskServer {
         server.initServer();
     }
 
+    public TaskManager getTaskManager() {
+        return taskManager;
+    }
+
     public void closeServer() {
         server.stop(1);
     }

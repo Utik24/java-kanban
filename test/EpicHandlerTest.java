@@ -6,8 +6,8 @@ import deserializers.LocalDateTimeDeserializer;
 import interfaces.TaskManager;
 import managers.InMemoryTaskManager;
 import model.Epic;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.HttpTaskServer;
 
@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class EpicHandlerTest {
 
@@ -31,41 +30,40 @@ class EpicHandlerTest {
     private static HttpTaskServer server;
     private Gson gson = new GsonBuilder().registerTypeAdapter(Duration.class, new DurationDeserializer()).registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer()).setPrettyPrinting().create();
 
-    @BeforeAll
-    static void startServer() throws IOException {
+    @BeforeEach
+    void startServer() throws IOException {
         TaskManager taskManager = new InMemoryTaskManager();
         server = new HttpTaskServer(taskManager);
         server.initServer();
     }
 
-    @AfterAll
-    static void stopServer() {
+    @AfterEach
+    void stopServer() {
         server.closeServer();
     }
 
     @Test
     void testCreateEpicSuccess() throws IOException, InterruptedException {
-        // JSON-объект эпика
-        String jsonEpic = """
-                {
-                  "title": "Epic 1",
-                  "description": "Description 1"
-                }
-                """;
+        Epic epic = new Epic("Epic 1", "Epic Description");
 
-        // Отправляем POST-запрос
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).POST(HttpRequest.BodyPublishers.ofString(jsonEpic)).header("Content-Type", "application/json").build();
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic))).header("Content-Type", "application/json").build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Проверяем статус 201
         assertEquals(201, response.statusCode());
+        assertEquals(1, server.getTaskManager().getAllEpics().size());
     }
 
     @Test
     void testGetAllEpicsSuccess() throws IOException, InterruptedException {
-        // Отправляем GET-запрос
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).GET().build();
+        Epic epic = new Epic("Epic 1", "Epic Description");
+
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic))).header("Content-Type", "application/json").build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode());
+        // Отправляем GET-запрос
+        request = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).GET().build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Проверяем статус 200
         assertEquals(200, response.statusCode());
@@ -76,20 +74,14 @@ class EpicHandlerTest {
         List<Epic> epics = gson.fromJson(response.body(), epicListType);
 
         // Проверяем, что список не пустой
-        assertNotNull(epics);
+        assertEquals(server.getTaskManager().getAllEpics(), epics);
     }
 
     @Test
     void testDeleteEpicSuccess() throws IOException, InterruptedException {
-        String jsonEpic = """
-                {
-                  "title": "Epic 1",
-                  "description": "Description 1"
-                }
-                """;
+        Epic epic = new Epic("Epic 1", "Epic Description");
 
-        // Отправляем POST-запрос
-        HttpRequest request1 = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).POST(HttpRequest.BodyPublishers.ofString(jsonEpic)).header("Content-Type", "application/json").build();
+        HttpRequest request1 = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic))).header("Content-Type", "application/json").build();
         HttpResponse<String> response = client.send(request1, HttpResponse.BodyHandlers.ofString());
 
         // Проверяем статус 201
@@ -105,11 +97,12 @@ class EpicHandlerTest {
 
     @Test
     void testDeleteNonExistentEpic() throws IOException, InterruptedException {
+        int mapSize = server.getTaskManager().getAllEpics().size();
         // Отправляем DELETE-запрос к несуществующему id
         HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + "/999")).DELETE().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Ожидаем 404 Not Found
-        assertEquals(404, response.statusCode());
+        assertEquals(mapSize, server.getTaskManager().getAllEpics().size());
     }
 }

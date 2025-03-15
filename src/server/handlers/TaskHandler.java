@@ -73,15 +73,10 @@ public class TaskHandler extends BaseHttpHandler {
     }
 
     public void deleteTask(HttpExchange exchange) throws IOException {
-        String response;
+        String response = "";
         int id = getId(exchange);
-        Task task = taskManager.getTaskById(id);
         taskManager.removeTaskById(id);
-        if (task == null) {
-            sendNotFound(exchange);
-        } else {
-            response = gson.toJson(task);
-            sendText(exchange, response, 200);
-        }
+        sendText(exchange, response, 200);
+
     }
 }
