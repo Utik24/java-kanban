@@ -51,19 +51,16 @@ class EpicHandlerTest {
 
         // Проверяем статус 201
         assertEquals(201, response.statusCode());
-        assertEquals(1, server.getTaskManager().getAllEpics().size());
+        assertEquals(epic.getTitle(), server.getTaskManager().getEpicById(1).getTitle());
     }
 
     @Test
     void testGetAllEpicsSuccess() throws IOException, InterruptedException {
         Epic epic = new Epic("Epic 1", "Epic Description");
-
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).POST(HttpRequest.BodyPublishers.ofString(gson.toJson(epic))).header("Content-Type", "application/json").build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(201, response.statusCode());
+        server.getTaskManager().createEpic(epic);
         // Отправляем GET-запрос
-        request = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).GET().build();
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Проверяем статус 200
         assertEquals(200, response.statusCode());
@@ -92,7 +89,7 @@ class EpicHandlerTest {
         HttpResponse<String> response2 = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Проверяем статус 200
-        assertEquals(200, response2.statusCode());
+        assertEquals(204, response2.statusCode());
     }
 
     @Test

@@ -59,28 +59,19 @@ class SubTaskHandlerTest {
 
         // Проверяем статус 201
         assertEquals(201, response.statusCode());
-        assertEquals(1, server.getTaskManager().getAllSubtasks().size());
+        assertEquals(subTask.getTitle(), server.getTaskManager().getSubTaskById(1).getTitle());
     }
 
     @Test
     void testGetAllSubTasksSuccess() throws IOException, InterruptedException {
         SubTask subTask = new SubTask("Subtask 1", "Subtask Description 1", Duration.ofMinutes(15), LocalDateTime.of(2022, 1, 1, 0, 0));
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(subTask)))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        // Проверяем статус 201
-        assertEquals(201, response.statusCode());
+        server.getTaskManager().createSubtask(subTask);
         // Отправляем GET-запрос
-        request = HttpRequest.newBuilder()
+        HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
                 .GET()
                 .build();
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Проверяем статус 200
         assertEquals(200, response.statusCode());
@@ -115,7 +106,7 @@ class SubTaskHandlerTest {
         HttpResponse<String> response2 = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         // Проверяем статус 200
-        assertEquals(200, response2.statusCode());
+        assertEquals(204, response2.statusCode());
     }
 
     @Test

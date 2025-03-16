@@ -73,9 +73,8 @@ public class SubTaskHandler extends BaseHttpHandler {
     }
 
     public void deleteSubTask(HttpExchange exchange) throws IOException {
-        String response = "";
         int id = getId(exchange);
         taskManager.removeSubTaskById(id);
-        sendText(exchange, response, 200);
+        sendDeleted(exchange);
     }
 }

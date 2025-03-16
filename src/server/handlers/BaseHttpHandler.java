@@ -49,6 +49,10 @@ public abstract class BaseHttpHandler implements HttpHandler {
         exchange.sendResponseHeaders(201, -1);  // Отправка пустого ответа с кодом 201
     }
 
+    protected void sendDeleted(HttpExchange exchange) throws IOException {
+        exchange.sendResponseHeaders(204, -1);  // Отправка пустого ответа с кодом 204
+    }
+
     // Отправка ошибки 404 (Not Found)
     protected void sendNotFound(HttpExchange exchange) throws IOException {
         String response = "Resource not found";

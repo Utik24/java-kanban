@@ -80,10 +80,9 @@ public class EpicHandler extends BaseHttpHandler {
     }
 
     public void deleteEpic(HttpExchange exchange) throws IOException {
-        String response = "";
         int id = getId(exchange);
         taskManager.removeEpicById(id);
-        sendText(exchange, response, 200);
+        sendDeleted(exchange);
 
     }
 }

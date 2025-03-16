@@ -6,7 +6,9 @@ import deserializers.LocalDateTimeDeserializer;
 import interfaces.TaskManager;
 import managers.InMemoryTaskManager;
 import model.Task;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import server.HttpTaskServer;
 
 import java.io.IOException;
@@ -20,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TaskHandlerTest {
 
@@ -56,25 +57,17 @@ class TaskHandlerTest {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(201, response.statusCode());
-        assertEquals(1,server.getTaskManager().getAllTasks().size());
+        assertEquals(task.getTitle(), server.getTaskManager().getTaskById(1).getTitle());
     }
 
     @Test
     void testGetAllTasksSuccess() throws IOException, InterruptedException {
-        Task task = new Task("Task 1", "Description 1", Duration.ofMinutes(15), LocalDateTime.of(2021, 1, 1, 0, 0));
+        server.getTaskManager().createTask(new Task("Task 1", "Description 1", Duration.ofMinutes(15), LocalDateTime.of(2021, 1, 1, 0, 0)));
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL))
-                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(task)))
-                .header("Content-Type", "application/json")
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(201, response.statusCode());
-        request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL))
                 .GET()
                 .build();
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(200, response.statusCode());
 
@@ -82,7 +75,7 @@ class TaskHandlerTest {
         }.getType();
         List<Task> tasks = gson.fromJson(response.body(), taskListType);
 
-        assertEquals(server.getTaskManager().getAllTasks(),tasks);
+        assertEquals(server.getTaskManager().getAllTasks(), tasks);
     }
 
     @Test
@@ -93,7 +86,7 @@ class TaskHandlerTest {
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(200, response.statusCode());
+        assertEquals(204, response.statusCode());
     }
 
     @Test
