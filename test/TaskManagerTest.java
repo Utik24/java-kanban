@@ -7,6 +7,7 @@ import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,10 +25,10 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     protected T taskManager;
 
     // Метод для создания конкретной реализации менеджера задач
-    protected abstract T createTaskManager();
+    protected abstract T createTaskManager() throws IOException;
 
     @BeforeEach
-    protected void settings() {
+    protected void settings() throws IOException {
         taskManager = createTaskManager();
     }
 

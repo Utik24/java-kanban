@@ -21,12 +21,8 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
 
     @Override
-    protected FileBackedTaskManager createTaskManager() {
-        try {
-            tempFile = File.createTempFile("tasks", ".csv");//Java не дает скомпилить если не обработать исключение поэтому пришлось оставить
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    protected FileBackedTaskManager createTaskManager() throws IOException {
+        tempFile = File.createTempFile("tasks", ".csv");
         return new FileBackedTaskManager(tempFile);
     }
 

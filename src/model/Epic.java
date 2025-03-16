@@ -16,6 +16,11 @@ public class Epic extends Task {
         updateTimeFields();
     }
 
+    public Epic(String title, String description, int id) {
+        this(title, description);
+        this.id = id;
+    }
+
     public Epic(int id, String title, Status status, String description) {
         super(id, title, status, description);
         this.subtasks = new ArrayList<>();
@@ -41,6 +46,9 @@ public class Epic extends Task {
     }
 
     public void updateStatus() {
+        if (subtasks == null) {
+            subtasks = new ArrayList<>();
+        }
         if (subtasks.isEmpty()) {
             this.status = Status.NEW;
             return;
